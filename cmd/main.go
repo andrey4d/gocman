@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"godman/internal/containers"
+
+	"godman/internal/starter"
 	"os"
-	"os/exec"
-	"syscall"
 )
 
 func main() {
@@ -17,48 +17,18 @@ func main() {
 
 	switch os.Args[1] {
 	case "run":
-		run()
+		starter.Run(os.Args)
 	case "child":
-		child()
+
+		cAtrs := containers.ContainerAttr{
+			Command_name:   os.Args[2],
+			Arguments:      os.Args[3:],
+			Container_name: "container",
+			Root:           "fakeroot",
+		}
+
+		containers.Child(cAtrs)
 	default:
 		panic("help: use run <cmd>")
 	}
-}
-
-func run() {
-	fmt.Println("Hello godman!")
-
-	command := append([]string{"child"}, os.Args[2:]...)
-
-	cmd := exec.Command("/proc/self/exe", command...)
-
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.SysProcAttr = &syscall.SysProcAttr{}
-
-	cmd.SysProcAttr.Cloneflags = syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID
-
-	fmt.Printf("Starter: %d\n", os.Getpid())
-	errorHandler(cmd.Run())
-
-}
-
-func child() {
-
-	cmd := exec.Command(os.Args[2], os.Args[3:]...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	fmt.Printf("Container: %d\n", os.Getpid())
-	errorHandler(cmd.Run())
-
-}
-
-func errorHandler(err error) {
-	if err != nil {
-		log.Fatalf("ERROR: %v", err)
-	}
-
 }

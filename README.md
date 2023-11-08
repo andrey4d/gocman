@@ -1,0 +1,4 @@
+## godman
+```shell
+make build
+```

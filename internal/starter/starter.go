@@ -20,8 +20,24 @@ func Run(args []string) {
 	cmd.Stderr = os.Stderr
 	cmd.SysProcAttr = &syscall.SysProcAttr{}
 
-	cmd.SysProcAttr.Cloneflags = syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS
+	cmd.SysProcAttr.Cloneflags = syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS | syscall.CLONE_NEWUSER
 
-	fmt.Printf("Starter: %d\n", os.Getpid())
-	handlers.ErrorHandler(cmd.Run(), "Run() ")
+	cmd.SysProcAttr.UidMappings = []syscall.SysProcIDMap{
+		{
+			ContainerID: 0,
+			HostID:      1000,
+			Size:        1,
+		},
+	}
+
+	cmd.SysProcAttr.GidMappings = []syscall.SysProcIDMap{
+		{
+			ContainerID: 0,
+			HostID:      1000,
+			Size:        1,
+		},
+	}
+
+	fmt.Printf("Starter PID: %d\n", os.Getpid())
+	handlers.ErrorHandlerPanicWithMessage(cmd.Run(), "Run() ")
 }

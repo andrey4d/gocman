@@ -4,3 +4,4 @@ CONTAINER_ROOT
 *.tar
 fakeroot*
 ovfs
+.vscode

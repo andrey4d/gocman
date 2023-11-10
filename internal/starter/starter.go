@@ -11,7 +11,7 @@ import (
 func Run(args []string) {
 	fmt.Println("Hello godman!")
 
-	command := append([]string{"child"}, args[2:]...)
+	command := append([]string{"container"}, args...)
 
 	cmd := exec.Command("/proc/self/exe", command...)
 

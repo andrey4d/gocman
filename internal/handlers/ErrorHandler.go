@@ -22,3 +22,7 @@ func ErrorHandlerReturn(err error, msg string) error {
 func ErrorHandlerLog(msg string) {
 	log.Error(msg)
 }
+
+func FatalHandlerLog(msg string) {
+	log.Fatal(msg)
+}

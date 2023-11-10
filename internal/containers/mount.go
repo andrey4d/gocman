@@ -15,8 +15,11 @@ func MountProc(new_root string) {
 	handlers.ErrorHandlerPanicWithMessage(syscall.Mount("proc", target, "proc", 0, ""), "MountProc()")
 }
 
-func UmountProc() {
-	handlers.ErrorHandlerPanicWithMessage(syscall.Unmount("/proc", 0), "UmountProc()")
+func UmountProc() error {
+	if err := syscall.Unmount("/proc", 0); err != nil {
+		return err
+	}
+	return nil
 }
 
 func MountRoot(new_root string) error {

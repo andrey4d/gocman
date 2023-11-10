@@ -33,7 +33,10 @@ func Container(cAtr ContainerAttr) {
 	fmt.Printf("change root to %s\n", cAtr.getRoot())
 
 	handlers.ErrorHandlerPanicWithMessage(MountOvfs(cAtr.OvfsRoot), "mount overlay")
+
 	MountProc(cAtr.getRoot())
+	defer handlers.ErrorHandlerPanicWithMessage(UmountProc(), "umount /proc")
+
 	handlers.ErrorHandlerPanicWithMessage(MountRoot(cAtr.getRoot()), "pivot root")
 
 	handlers.ErrorHandlerPanicWithMessage(syscall.Chdir("/"), "change dir")
@@ -49,7 +52,6 @@ func Container(cAtr ContainerAttr) {
 	fmt.Printf("Container PID: %d\n", os.Getpid())
 	handlers.ErrorHandlerPanicWithMessage(cmd.Run(), "run container")
 
-	defer UmountProc()
 }
 
 func setHostname(hostname string) {

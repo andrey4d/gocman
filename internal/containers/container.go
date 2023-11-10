@@ -5,7 +5,6 @@ import (
 	"godman/internal/handlers"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"syscall"
 )
 
@@ -13,31 +12,17 @@ type ContainerAttr struct {
 	Command_name   string
 	Arguments      []string
 	Container_name string
-	Root           string
 	OvfsRoot       *OvfsMountCfg
 }
 
-func (c *ContainerAttr) getRoot() string {
-
-	if filepath.IsAbs(c.Root) {
-		return c.Root
-	}
-
-	pwd, err := os.Getwd()
-	handlers.ErrorHandlerPanicWithMessage(err, "PWD")
-	return filepath.Join(pwd, c.Root)
-
-}
-
 func Container(cAtr ContainerAttr) {
-	fmt.Printf("change root to %s\n", cAtr.getRoot())
+	fmt.Printf("change root to %s\n", GetAbsPath(cAtr.OvfsRoot.Target))
 
 	handlers.ErrorHandlerPanicWithMessage(MountOvfs(cAtr.OvfsRoot), "mount overlay")
 
-	MountProc(cAtr.getRoot())
-	defer handlers.ErrorHandlerPanicWithMessage(UmountProc(), "umount /proc")
+	MountProc(GetAbsPath(cAtr.OvfsRoot.Target))
 
-	handlers.ErrorHandlerPanicWithMessage(MountRoot(cAtr.getRoot()), "pivot root")
+	handlers.ErrorHandlerPanicWithMessage(MountRoot(GetAbsPath(cAtr.OvfsRoot.Target)), "pivot root")
 
 	handlers.ErrorHandlerPanicWithMessage(syscall.Chdir("/"), "change dir")
 
@@ -52,6 +37,7 @@ func Container(cAtr ContainerAttr) {
 	fmt.Printf("Container PID: %d\n", os.Getpid())
 	handlers.ErrorHandlerPanicWithMessage(cmd.Run(), "run container")
 
+	handlers.ErrorHandlerPanicWithMessage(UmountProc(), "umount /proc")
 }
 
 func setHostname(hostname string) {

@@ -1,7 +1,6 @@
 package commandline
 
 import (
-	"fmt"
 	"godman/internal/containers"
 
 	"github.com/google/uuid"
@@ -19,23 +18,20 @@ func init() {
 
 func container(cmd *cobra.Command, args []string) {
 
-	fmt.Println(args)
+	var ovfsRoot = &containers.OvfsMountCfg{
+		Lowerdir: []string{"ovfs/l1", "ovfs/l2"},
+		Upperdir: "ovfs/upper",
+		Workdir:  "ovfs/work",
+		Target:   "fakeroot",
+		SELebel:  "",
+	}
 
 	cAtrs := containers.ContainerAttr{
 		Command_name:   args[0],
 		Arguments:      args[1:],
 		Container_name: uuid.New().String(),
-		Root:           "fakeroot",
-
-		OvfsRoot: &containers.OvfsMountCfg{
-			Lowerdir: []string{"ovfs/l1", "ovfs/l2"},
-			Upperdir: "ovfs/upper",
-			Workdir:  "ovfs/work",
-			Target:   "fakeroot",
-			SELebel:  "",
-		},
+		OvfsRoot:       ovfsRoot,
 	}
-	fmt.Println(cAtrs.Command_name)
-	fmt.Println(cAtrs.Arguments)
+
 	containers.Container(cAtrs)
 }

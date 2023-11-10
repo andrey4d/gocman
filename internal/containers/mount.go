@@ -92,8 +92,8 @@ func MountOvfs(ovfs *OvfsMountCfg) error {
 
 	target := GetAbsPath(ovfs.Target)
 	opts := ovfs.OvfsOpt()
+	fmt.Print("mount overlay fs root ...\n")
 	fmt.Println(opts)
-	fmt.Println(target)
 
 	err := syscall.Mount("overlay", target, "overlay", 0, opts)
 	if err != nil {

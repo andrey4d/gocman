@@ -1,7 +1,7 @@
 package commandline
 
 import (
-	"godman/internal/handlers"
+	"godman/internal/helpers"
 
 	"github.com/spf13/cobra"
 )
@@ -11,5 +11,5 @@ var rootCmd = &cobra.Command{
 }
 
 func Execute() {
-	handlers.ErrorHandlerPanicWithMessage(rootCmd.Execute(), "cobra root menu")
+	helpers.ErrorHelperPanicWithMessage(rootCmd.Execute(), "cobra root menu")
 }

@@ -1,7 +1,7 @@
 package commandline
 
 import (
-	"godman/internal/handlers"
+	"godman/internal/helpers"
 	"godman/internal/starter"
 
 	"github.com/spf13/cobra"
@@ -19,7 +19,7 @@ func init() {
 
 func run(_ *cobra.Command, args []string) {
 	if len(args) == 0 || len(args[0]) == 0 {
-		handlers.FatalHandlerLog("command not specified")
+		helpers.FatalHelperLog("command not specified")
 
 	}
 

@@ -2,7 +2,7 @@ package starter
 
 import (
 	"fmt"
-	"godman/internal/handlers"
+	"godman/internal/helpers"
 	"os"
 	"os/exec"
 	"syscall"
@@ -39,5 +39,5 @@ func Run(args []string) {
 	}
 
 	fmt.Printf("Starter PID: %d\n", os.Getpid())
-	handlers.ErrorHandlerPanicWithMessage(cmd.Run(), "Run() ")
+	helpers.ErrorHelperPanicWithMessage(cmd.Run(), "Run() ")
 }

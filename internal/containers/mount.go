@@ -2,7 +2,7 @@ package containers
 
 import (
 	"fmt"
-	"godman/internal/handlers"
+	"godman/internal/helpers"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,7 +12,7 @@ import (
 
 func MountProc(new_root string) {
 	target := filepath.Join(new_root, "/proc")
-	handlers.ErrorHandlerPanicWithMessage(syscall.Mount("proc", target, "proc", 0, ""), "MountProc()")
+	helpers.ErrorHelperPanicWithMessage(syscall.Mount("proc", target, "proc", 0, ""), "MountProc()")
 }
 
 func UmountProc() error {
@@ -27,32 +27,32 @@ func MountRoot(new_root string) error {
 	old_root := filepath.Join(new_root, "/.pivot_root")
 	fmt.Println(new_root)
 	if err := syscall.Mount(new_root, new_root, "", syscall.MS_BIND|syscall.MS_REC, ""); err != nil {
-		handlers.ErrorHandlerLog("Bind newroot")
+		helpers.ErrorHelperLog("Bind newroot")
 		return err
 	}
 
 	if err := os.MkdirAll(old_root, 0700); err != nil {
-		handlers.ErrorHandlerLog("make dirs " + old_root)
+		helpers.ErrorHelperLog("make dirs " + old_root)
 		return err
 	}
 
 	if err := syscall.PivotRoot(new_root, old_root); err != nil {
-		handlers.ErrorHandlerLog("syscall.PivotRoot")
+		helpers.ErrorHelperLog("syscall.PivotRoot")
 		return err
 	}
 
 	if err := syscall.Chdir("/"); err != nil {
-		handlers.ErrorHandlerLog("change dir to /")
+		helpers.ErrorHelperLog("change dir to /")
 		return err
 	}
 
 	if err := syscall.Unmount("/.pivot_root", syscall.MNT_DETACH); err != nil {
-		handlers.ErrorHandlerLog("umount " + old_root)
+		helpers.ErrorHelperLog("umount " + old_root)
 		return err
 	}
 
 	if err := os.RemoveAll("/.pivot_root"); err != nil {
-		handlers.ErrorHandlerLog("remove " + old_root)
+		helpers.ErrorHelperLog("remove " + old_root)
 		return err
 	}
 
@@ -71,26 +71,17 @@ func (o *OvfsMountCfg) OvfsOpt() string {
 
 	var lowerdir []string
 	for _, s := range o.Lowerdir {
-		lowerdir = append(lowerdir, GetAbsPath(s))
+		lowerdir = append(lowerdir, helpers.GetAbsPath(s))
 	}
 
-	opts := fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", strings.Join(lowerdir, ":"), GetAbsPath(o.Upperdir), GetAbsPath(o.Workdir))
+	opts := fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", strings.Join(lowerdir, ":"), helpers.GetAbsPath(o.Upperdir), helpers.GetAbsPath(o.Workdir))
 
 	return opts
 }
 
-func GetAbsPath(path string) string {
-	if filepath.IsAbs(path) {
-		return path
-	}
-	pwd, err := os.Getwd()
-	handlers.ErrorHandlerPanicWithMessage(err, "PWD in GetAbsPath")
-	return filepath.Join(pwd, path)
-}
-
 func MountOvfs(ovfs *OvfsMountCfg) error {
 
-	target := GetAbsPath(ovfs.Target)
+	target := helpers.GetAbsPath(ovfs.Target)
 	opts := ovfs.OvfsOpt()
 	fmt.Print("mount overlay fs root ...\n")
 	fmt.Println(opts)

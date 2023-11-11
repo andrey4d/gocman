@@ -1,17 +1,17 @@
-package handlers
+package helpers
 
 import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ErrorHandlerPanicWithMessage(err error, msg string) {
+func ErrorHelperPanicWithMessage(err error, msg string) {
 	if err != nil {
 		log.Println(msg)
 		log.Fatalf("ERROR: %v", err)
 	}
 
 }
-func ErrorHandlerReturn(err error, msg string) error {
+func ErrorHelperReturn(err error, msg string) error {
 	if err != nil {
 		log.Println(msg)
 		return err
@@ -19,10 +19,10 @@ func ErrorHandlerReturn(err error, msg string) error {
 	return nil
 }
 
-func ErrorHandlerLog(msg string) {
+func ErrorHelperLog(msg string) {
 	log.Error(msg)
 }
 
-func FatalHandlerLog(msg string) {
+func FatalHelperLog(msg string) {
 	log.Fatal(msg)
 }

@@ -2,7 +2,7 @@ package containers
 
 import (
 	"fmt"
-	"godman/internal/handlers"
+	"godman/internal/helpers"
 	"os"
 	"os/exec"
 	"syscall"
@@ -16,15 +16,15 @@ type ContainerAttr struct {
 }
 
 func Container(cAtr ContainerAttr) {
-	fmt.Printf("change root to %s\n", GetAbsPath(cAtr.OvfsRoot.Target))
+	fmt.Printf("change root to %s\n", helpers.GetAbsPath(cAtr.OvfsRoot.Target))
 
-	handlers.ErrorHandlerPanicWithMessage(MountOvfs(cAtr.OvfsRoot), "mount overlay")
+	helpers.ErrorHelperPanicWithMessage(MountOvfs(cAtr.OvfsRoot), "mount overlay")
 
-	MountProc(GetAbsPath(cAtr.OvfsRoot.Target))
+	MountProc(helpers.GetAbsPath(cAtr.OvfsRoot.Target))
 
-	handlers.ErrorHandlerPanicWithMessage(MountRoot(GetAbsPath(cAtr.OvfsRoot.Target)), "pivot root")
+	helpers.ErrorHelperPanicWithMessage(MountRoot(helpers.GetAbsPath(cAtr.OvfsRoot.Target)), "pivot root")
 
-	handlers.ErrorHandlerPanicWithMessage(syscall.Chdir("/"), "change dir")
+	helpers.ErrorHelperPanicWithMessage(syscall.Chdir("/"), "change dir")
 
 	cmd := exec.Command(cAtr.Command_name, cAtr.Arguments...)
 	cmd.Stdin = os.Stdin
@@ -35,11 +35,11 @@ func Container(cAtr ContainerAttr) {
 
 	setHostname(cAtr.Container_name)
 	fmt.Printf("Container PID: %d\n", os.Getpid())
-	handlers.ErrorHandlerPanicWithMessage(cmd.Run(), "run container")
+	helpers.ErrorHelperPanicWithMessage(cmd.Run(), "run container")
 
-	handlers.ErrorHandlerPanicWithMessage(UmountProc(), "umount /proc")
+	helpers.ErrorHelperPanicWithMessage(UmountProc(), "umount /proc")
 }
 
 func setHostname(hostname string) {
-	handlers.ErrorHandlerPanicWithMessage(syscall.Sethostname([]byte(hostname)), "set container name")
+	helpers.ErrorHelperPanicWithMessage(syscall.Sethostname([]byte(hostname)), "set container name")
 }

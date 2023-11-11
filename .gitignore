@@ -1,4 +1,5 @@
 bin
+tmp*
 */**.tar
 CONTAINER_ROOT
 *.tar

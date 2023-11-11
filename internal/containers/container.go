@@ -16,13 +16,13 @@ type ContainerAttr struct {
 }
 
 func Container(cAtr ContainerAttr) {
-	fmt.Printf("change root to %s\n", helpers.GetAbsPath(cAtr.OvfsRoot.Target))
+	fmt.Printf("change root to %s\n", GetAbsPath(cAtr.OvfsRoot.Target))
 
 	helpers.ErrorHelperPanicWithMessage(MountOvfs(cAtr.OvfsRoot), "mount overlay")
 
-	MountProc(helpers.GetAbsPath(cAtr.OvfsRoot.Target))
+	MountProc(GetAbsPath(cAtr.OvfsRoot.Target))
 
-	helpers.ErrorHelperPanicWithMessage(MountRoot(helpers.GetAbsPath(cAtr.OvfsRoot.Target)), "pivot root")
+	helpers.ErrorHelperPanicWithMessage(MountRoot(GetAbsPath(cAtr.OvfsRoot.Target)), "pivot root")
 
 	helpers.ErrorHelperPanicWithMessage(syscall.Chdir("/"), "change dir")
 
@@ -34,6 +34,7 @@ func Container(cAtr ContainerAttr) {
 	cmd.Env = []string{"PATH=/bin:/sbin:/usr/bin:/usr/sbin"}
 
 	setHostname(cAtr.Container_name)
+
 	fmt.Printf("Container PID: %d\n", os.Getpid())
 	helpers.ErrorHelperPanicWithMessage(cmd.Run(), "run container")
 

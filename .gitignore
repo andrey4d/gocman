@@ -5,3 +5,5 @@ CONTAINER_ROOT
 fakeroot*
 ovfs
 .vscode
+containers*
+*.txt

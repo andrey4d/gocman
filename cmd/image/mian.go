@@ -11,6 +11,9 @@ import (
 
 	"github.com/google/go-containerregistry/pkg/crane"
 	// v1 "github.com/opencontainers/image-spec/specs-go/v1"
+
+	"github.com/fatih/color"
+	"github.com/rodaine/table"
 )
 
 const imageStore = "containers/images"
@@ -41,17 +44,22 @@ func main() {
 
 	addImageToDB("busybox", "latest", "a416a98b71e224a3")
 	addImageToDB("busybox", "3.18", "a416a98b71e23ed8")
+	addImageToDB("registry.home.local/busybox", "latest", "a416a98b71e224a3")
 	listImages()
 }
 
 func listImages() {
 	imagesDB, _ := loadImageDB()
-	fmt.Printf("NAME\t\t%13s\t%10s\n", "TAG", "ID")
+	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
+	columnFmt := color.New(color.FgYellow).SprintfFunc()
+	tbl := table.New("NAME", "TA", "ID")
+	tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
 	for image, meta := range imagesDB {
 		for tag, shaHash := range meta {
-			fmt.Printf("%s\t\t%16s \t%s\n", image, tag, shaHash)
+			tbl.AddRow(image, tag, shaHash)
 		}
 	}
+	tbl.Print()
 }
 
 func removeImageFromDB() {

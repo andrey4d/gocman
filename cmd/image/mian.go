@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/crane"
+	"golang.org/x/exp/maps"
+
 	// v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	"github.com/fatih/color"
@@ -24,11 +26,12 @@ type manifest []struct {
 	Layers   []string
 }
 
-type ImageRow map[string]string  // tag: shaHash
-type ImageDB map[string]ImageRow // {imageName: {"tag":"shaHash"}}
+type ImageRow map[string]string  // imageName: tag
+type ImageDB map[string]ImageRow // {id : {"imageName":"tag"}}
+
 // DB := ImageDB{
-// 	"busybox": ImageRow{
-// 		"latest": "a416a98b71e224a3",
+// 	"a416a98b71e224a3": ImageRow{
+// 		"busybox": "latest",
 // 	},
 // }
 
@@ -46,52 +49,122 @@ func main() {
 	addImageToDB("busybox", "3.18", "a416a98b71e23ed8")
 	addImageToDB("registry.home.local/busybox", "latest", "a416a98b71e224a3")
 	listImages()
+	// name, tag := getImageNameAndTagByShaHex("a416a98b71e224a3")
+	// fmt.Println(name, ":", tag)
+	// id, err := removeImageFromDbByHash("a416a98b71e23ed8")
+	// id, err := getIdByName("busybox:3.18")
+	// id, err := getIdByName("registry.home.local/busybox")
+	// id, err := removeImageFromDbByName("busybox:3.18")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(id)
+	id, err := removeImageFromDbByName("registry.home.local/busybox")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(id)
+	id, err = removeImageFromDbByName("busybox")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(id)
+
 }
 
 func listImages() {
-	imagesDB, _ := loadImageDB()
+	imagesDB := loadImageDB()
 	headerFmt := color.New(color.FgGreen, color.Underline).SprintfFunc()
 	columnFmt := color.New(color.FgYellow).SprintfFunc()
 	tbl := table.New("NAME", "TA", "ID")
 	tbl.WithHeaderFormatter(headerFmt).WithFirstColumnFormatter(columnFmt)
-	for image, meta := range imagesDB {
-		for tag, shaHash := range meta {
+	for shaHash, meta := range imagesDB {
+		for image, tag := range meta {
 			tbl.AddRow(image, tag, shaHash)
 		}
 	}
 	tbl.Print()
 }
 
-func removeImageFromDB() {
-	imagesDB, _ := loadImageDB()
-	fmt.Println(imagesDB)
+func getImageNameAndTagById(shaHex string) (string, string) {
+	imageDB := loadImageDB()
+	if imageDB[shaHex] != nil {
+		row := imageDB[shaHex]
+		key := maps.Keys(row)[0] // get first image
+		return key, row[key]
+	}
+	return "", ""
 }
 
-func addImageToDB(imageName string, tag string, shaHash16 string) {
-	imageDB, _ := loadImageDB()
-	row := ImageRow{}
-	if imageDB[imageName] != nil {
-		row = imageDB[imageName]
-	}
+func getIdByName(name string) (string, error) {
+	imagesDB := loadImageDB()
 
-	row[tag] = shaHash16
-	imageDB[imageName] = row
-	saveImageDB(imageDB)
+	name, tag := getImageNameAndTag(name)
+	for id, meta := range imagesDB {
+		for n, t := range meta {
+			if n == name && t == tag {
+				return id, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("no ID associated with name %s", name)
+}
+
+func removeImageFromDbByHash(id string) (string, error) {
+	imagesDB := loadImageDB()
+	row := imagesDB[id]
+	if row == nil {
+		return "", fmt.Errorf("no image associated with ID %s", id)
+	}
+	if len(row) > 1 {
+		return "", fmt.Errorf("more one TAG associated with ID %s", id)
+	}
+	delete(imagesDB, id)
+	saveImageDB(imagesDB)
+	return id, nil
+}
+
+func removeImageFromDbByName(name string) (string, error) {
+	imagesDB := loadImageDB()
+	id, err := getIdByName(name)
+	if err != nil {
+		return "", fmt.Errorf("image %s not found", name)
+	}
+	name, tag := getImageNameAndTag(name)
+	row := imagesDB[id]
+	for n, t := range row {
+		if n == name && t == tag {
+			delete(row, name)
+		}
+		if len(row) == 0 {
+			fmt.Println(row, len(row))
+			delete(imagesDB, id)
+		}
+		saveImageDB(imagesDB)
+	}
+	return id, nil
+}
+
+func addImageToDB(imageName string, tag string, idShaHash16 string) {
+	imagesDB := loadImageDB()
+	row := ImageRow{}
+	if imagesDB[idShaHash16] != nil {
+		row = imagesDB[idShaHash16]
+	}
+	row[imageName] = tag
+	imagesDB[idShaHash16] = row
+	saveImageDB(imagesDB)
 }
 
 func saveImageDB(imageDB ImageDB) {
 	imageDbPath := containers.GetAbsPath("containers") + "/images/images.json"
 
-	file, err := os.OpenFile(imageDbPath, os.O_WRONLY, 0644)
-	helpers.ErrorHelperPanicWithMessage(err, "write imageDB to images.json")
-	encoder := json.NewEncoder(file)
-
-	helpers.ErrorHelperPanicWithMessage(encoder.Encode(imageDB), "encode imageDB")
-	defer file.Close()
-
+	imagesBytes, err := json.Marshal(imageDB)
+	helpers.ErrorHelperPanicWithMessage(err, "marshal imageDB to JSON")
+	helpers.ErrorHelperPanicWithMessage(os.WriteFile(imageDbPath, imagesBytes, 0644), "write imageDB to images.json")
 }
 
-func loadImageDB() (ImageDB, error) {
+func loadImageDB() ImageDB {
 	imageDbPath := containers.GetAbsPath("containers") + "/images/images.json"
 
 	if _, err := os.Stat(imageDbPath); os.IsNotExist(err) {
@@ -105,12 +178,10 @@ func loadImageDB() (ImageDB, error) {
 	defer file.Close()
 
 	decoder := json.NewDecoder(file)
-
 	var imageDB ImageDB
 	helpers.ErrorHelperPanicWithMessage(decoder.Decode(&imageDB), "unable decode images.json")
 
-	return imageDB, nil
-
+	return imageDB
 }
 
 func getImageManifest(name string) {

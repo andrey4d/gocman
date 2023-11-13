@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"godman/internal/config"
 	"godman/internal/containers"
 	"godman/internal/helpers"
 	"log"
@@ -10,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/google/go-containerregistry/pkg/crane"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"golang.org/x/exp/maps"
 
 	// v1 "github.com/opencontainers/image-spec/specs-go/v1"
@@ -20,12 +22,6 @@ import (
 
 const imageStore = "containers/images"
 
-type manifest []struct {
-	Config   string
-	RepoTags []string
-	Layers   []string
-}
-
 type ImageRow map[string]string  // imageName: tag
 type ImageDB map[string]ImageRow // {id : {"imageName":"tag"}}
 
@@ -34,6 +30,14 @@ type ImageDB map[string]ImageRow // {id : {"imageName":"tag"}}
 // 		"busybox": "latest",
 // 	},
 // }
+
+type Manifest []struct {
+	Config   string   `json:"Config"`
+	RepoTags []string `json:"RepoTags"`
+	Layers   []string `json:"Layers"`
+}
+
+const temp = "tmp"
 
 func main() {
 	fmt.Println("Image parse")
@@ -44,31 +48,21 @@ func main() {
 	// mkImage()
 
 	// saveImageDB(DB)
-
-	addImageToDB("busybox", "latest", "a416a98b71e224a3")
-	addImageToDB("busybox", "3.18", "a416a98b71e23ed8")
-	addImageToDB("registry.home.local/busybox", "latest", "a416a98b71e224a3")
+	cfg := config.InitConfig("config/config.yaml")
+	// addImageToDB("busybox", "latest", "a416a98b71e224a3")
+	// addImageToDB("busybox", "3.18", "a416a98b71e23ed8")
+	// addImageToDB("registry.home.local/busybox", "latest", "a416a98b71e224a3")
 	listImages()
-	// name, tag := getImageNameAndTagByShaHex("a416a98b71e224a3")
-	// fmt.Println(name, ":", tag)
 	// id, err := removeImageFromDbByHash("a416a98b71e23ed8")
 	// id, err := getIdByName("busybox:3.18")
 	// id, err := getIdByName("registry.home.local/busybox")
-	// id, err := removeImageFromDbByName("busybox:3.18")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// fmt.Println(id)
 	id, err := removeImageFromDbByName("registry.home.local/busybox")
 	if err != nil {
 		fmt.Println(err)
 	}
 	fmt.Println(id)
-	id, err = removeImageFromDbByName("busybox")
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(id)
+	downloadImage("busybox", cfg.Container.TempPath)
+	// getManifest("alpine")
 
 }
 
@@ -184,39 +178,101 @@ func loadImageDB() ImageDB {
 	return imageDB
 }
 
-func getImageManifest(name string) {
-
+func downloadImage(name string, path string) string {
+	// needDownload := false
 	imgName, tagName := getImageNameAndTag(name)
+	id, err := getIdByName(name)
+	log.Println(err)
 
+	if id == "" {
+		log.Printf("Downloading metadata for %s:%s, please wait...", imgName, tagName)
+		img, err := crane.Pull(strings.Join([]string{imgName, tagName}, ":"))
+		helpers.ErrorHelperPanicWithMessage(err, "pull image")
+
+		manifest, _ := img.Manifest()
+		id := manifest.Config.Digest.Hex[:16]
+
+		log.Printf("Id: %v\n", id)
+
+		log.Println("Checking if image exists under another name...")
+		name, tag := getImageNameAndTagById(id)
+		if name != "" {
+			log.Printf("The image you requested %s:%s is the same as %s:%s\n", imgName, tagName, name, tag)
+			addImageToDB(imgName, tagName, id)
+			return id
+		} else {
+			tmp := containers.MakeTempPath(path, id)
+			tarFile := fmt.Sprintf("%s/%s.tar", tmp, id)
+			untarPath := fmt.Sprintf("%s/image.tar", tmp)
+
+			log.Println(tarFile)
+			helpers.ErrorHelperPanicWithMessage(crane.Save(img, id, tarFile), "can't save image")
+			helpers.ErrorHelperPanicWithMessage(helpers.Untar(tarFile, untarPath), "can't untar image")
+
+			unpackImage(id, manifest.Config.Digest.Hex)
+			// addImageToDB(imgName, tagName, id)
+
+			return id
+		}
+
+	} else {
+		log.Println("Image already exists. Not downloading.")
+		return id
+	}
+
+	//
+
+	// log.Println(tmp)
+
+	// // log.Printf("%v", manifest)
+	// h
+}
+
+func unpackImage(id string, digest string) {
+
+	path := containers.MakeTempPath(temp, id)
+
+	// processLayerTarballs(imageShaHex, imageDigest)
+	manifestPath := fmt.Sprintf("%s/image.tar/manifest.json", path)
+	// configPAth := fmt.Sprint("%s/%s.json", path, digest)
+
+	manifestBytes, err := os.ReadFile(manifestPath)
+	helpers.ErrorHelperPanicWithMessage(err, "unpackImage() read manifest file")
+
+	var manifest Manifest
+	helpers.ErrorHelperPanicWithMessage(json.Unmarshal(manifestBytes, &manifest), "unpackImage() unmarshal manifest")
+
+	imagesDir := containers.GetAbsPath("containers") + "/images/" + id
+	_ = os.Mkdir(imagesDir, 0755)
+
+	for _, layer := range manifest[0].Layers {
+
+		layerDir := fmt.Sprintf("%s/%s/fs", imagesDir, layer[:16])
+		helpers.ErrorHelperPanicWithMessage(os.MkdirAll(layerDir, 0755), "can't make dir")
+
+		log.Printf("Uncompressing layer to: %s \n", layerDir)
+		helpers.ErrorHelperPanicWithMessage(os.MkdirAll(layerDir, 0755), "unpackImage() unpackImage() can't create layer dir")
+		srcLayer := fmt.Sprintf("%s/image.tar/%s", path, layer)
+		helpers.ErrorHelperPanicWithMessage(helpers.Untar(srcLayer, layerDir), fmt.Sprintf("Unable to untar layer file: %s\n", srcLayer))
+
+		log.Println(layer)
+	}
+}
+
+func getManifest(name string) {
+	imgName, tagName := getImageNameAndTag(name)
 	log.Printf("Downloading metadata for %s:%s, please wait...", imgName, tagName)
-	img, err := crane.Pull(strings.Join([]string{imgName, tagName}, ":"))
+	mbytes, err := crane.Manifest(strings.Join([]string{imgName, tagName}, ":"))
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	manifest, _ := img.Manifest()
-	imageShaHex := manifest.Config.Digest.Hex[:16]
-	tmp := containers.GetTempPath(containers.GetAbsPath("tmp"))
-	log.Println(tmp)
-	log.Printf("imageHash: %v\n", imageShaHex)
-	log.Println("Checking if image exists under another name...")
-	// log.Printf("%v", manifest)
-	helpers.ErrorHelperPanicWithMessage(crane.Save(img, imageShaHex, fmt.Sprintf("%s/%s.tar", tmp, name)), "save image")
-
+	log.Printf(string(mbytes))
+	var manifest *v1.Manifest
+	log.Println(manifest)
+	json.Unmarshal(mbytes, &manifest)
+	id := manifest.Config.Digest.Hex
+	log.Println(id)
 }
-
-// func downloadImageMetadata()
-
-// func downloadImage(img v1.Image, imageShaHex string, src string) {
-// 	path := containers.GetAbsPath("tmp") + "/" + imageShaHex
-// 	os.Mkdir(path, 0755)
-// 	path += "/package.tar"
-// 	/* Save the image as a tar file */
-// 	if err := crane.SaveLegacy(img, src, path); err != nil {
-// 		log.Fatalf("saving tarball %s: %v", path, err)
-// 	}
-// 	log.Printf("Successfully downloaded %s\n", src)
-// }
 
 func getImageNameAndTag(src string) (string, string) {
 	s := strings.Split(src, ":")

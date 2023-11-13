@@ -2,19 +2,32 @@ package helpers
 
 import (
 	"archive/tar"
-	log "github.com/sirupsen/logrus"
+	"compress/gzip"
 	"io"
 	"os"
 	"path/filepath"
+
+	log "github.com/sirupsen/logrus"
 )
+
+func geUntarReader(tarball string) (io.Reader, error) {
+
+	file, err := os.Open(tarball)
+	if filepath.Ext(tarball) == ".tar" {
+		return file, err
+	}
+	return gzip.NewReader(file)
+}
 
 func Untar(tarball, target string) error {
 	hardLinks := make(map[string]string)
-	reader, err := os.Open(tarball)
+
+	reader, err := geUntarReader(tarball)
 	if err != nil {
 		return err
 	}
-	defer reader.Close()
+	// defer reader.Close()
+
 	tarReader := tar.NewReader(reader)
 
 	for {

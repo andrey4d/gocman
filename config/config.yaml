@@ -2,6 +2,6 @@ container:
   base_path: "."
   temp_path: "tmp"
   container_path: "containers"
-  container_perm: 0777
+  container_perm: 0755
 
 

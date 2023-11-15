@@ -4,10 +4,13 @@
 make build
 ```
 
-
-
 ```shell
 ./godman run /bin/bash
+```
+
+### Show images 
+```shell
+./godman images
 ```
 
 

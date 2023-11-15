@@ -1,9 +1,13 @@
+/*
+ *   Copyright (c) 2023 Andrey Danilov andrey4d.dev@gmail.com
+ *   All rights reserved.
+ */
 package main
 
 import (
 	"fmt"
 	// "godman/internal/config"
-	"godman/internal/containers"
+	"godman/internal/helpers"
 
 	"github.com/google/go-containerregistry/pkg/crane"
 )
@@ -24,7 +28,7 @@ func main() {
 	// addImageToDB("busybox", "latest", "a416a98b71e224a3")
 	// addImageToDB("busybox", "3.18", "a416a98b71e23ed8")
 	// addImageToDB("registry.home.local/busybox", "latest", "a416a98b71e224a3")
-	containers.ListImages()
+	helpers.ListImages()
 	// id, err := removeImageFromDbByHash("a416a98b71e23ed8")
 	// id, err := getIdByName("busybox:3.18")
 	// id, err := getIdByName("registry.home.local/busybox")
@@ -33,7 +37,7 @@ func main() {
 	// fmt.Println(err)
 	// }
 	// fmt.Println(id)
-	containers.DownloadImage("registry.home.local/busybox")
+	helpers.DownloadImage("registry.home.local/busybox")
 	// containers.DownloadImage("gcr.io/kubernetes-e2e-test-images/echoserver:2.2", cfg.Container.TempPath)
 	// getManifest("alpine")
 

@@ -1,3 +1,7 @@
+/*
+ *   Copyright (c) 2023 Andrey Danilov andrey4d.dev@gmail.com
+ *   All rights reserved.
+ */
 package commandline
 
 import (
@@ -20,10 +24,11 @@ func init() {
 }
 
 func container(cmd *cobra.Command, args []string) {
+
 	cfg := config.InitConfig("config/config.yaml")
 	cId := helpers.CreateContainerID(16)
 
-	containerBaseDir := fmt.Sprintf("%s/storage/overlay/%s", containers.GetAbsPath(cfg.Container.ContainerPath), cId)
+	containerBaseDir := fmt.Sprintf("%s/storage/overlay/%s", helpers.GetAbsPath(cfg.Container.ContainerPath), cId)
 
 	var ovfsRoot = &containers.OvfsMountCfg{
 		Lowerdir:    []string{fmt.Sprintf("%s/l", containerBaseDir)}, // overlay/l/<ZLR4NWYDXWB5LCOBDH7WAGVYDI> --> storage/overlay/<id>/diff

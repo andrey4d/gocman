@@ -6,6 +6,7 @@ package helpers
 
 import (
 	"crypto/rand"
+	"encoding/base32"
 	"encoding/hex"
 )
 
@@ -14,5 +15,12 @@ import (
 func CreateContainerID(size int) string {
 	randBytes := make([]byte, size)
 	rand.Read(randBytes)
+
 	return hex.EncodeToString(randBytes)
+}
+
+func GenerateID(size int) string {
+	randBytes := make([]byte, size)
+	rand.Read(randBytes)
+	return base32.StdEncoding.EncodeToString(randBytes)[:size]
 }

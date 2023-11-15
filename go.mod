@@ -10,7 +10,6 @@ require (
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.17.0
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -42,8 +41,10 @@ require (
 	github.com/vbatts/tar-split v0.11.3 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
-	golang.org/x/sync v0.3.0 // indirect
+	golang.org/x/sync v0.5.0 // indirect
 	golang.org/x/sys v0.14.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gotest.tools/v3 v3.4.0 // indirect
 )

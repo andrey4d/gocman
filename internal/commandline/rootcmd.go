@@ -63,8 +63,10 @@ func initConfig() {
 }
 
 func initContainerConfig() {
-	config.Config.ContainersPath = helpers.GetAbsPath(viper.GetString("container.container_path"))
-	config.Config.ContainersTemp = fmt.Sprintf("%s/%s", config.Config.ContainersPath, viper.GetString("container.temp_path"))
-	config.Config.ImageDbPath = fmt.Sprintf("%s/storage/overlay-images/images.json", config.Config.ContainersPath)
-	config.Config.Permissions = fs.FileMode(viper.GetUint32("container.container_perm"))
+	config.Config.SetContainersPath(helpers.GetAbsPath(viper.GetString("container.container_path")))
+	config.Config.SetContainersTemp(fmt.Sprintf("%s/%s", config.Config.GetContainersPath(), viper.GetString("container.temp_path")))
+	config.Config.SetOverlayImage(fmt.Sprintf("%s/storage/overlay-images", config.Config.GetContainersPath()))
+	config.Config.SetImageDbPath(fmt.Sprintf("%s/images.json", config.Config.GetOverlayImage()))
+	config.Config.SetPermissions(fs.FileMode(viper.GetUint32("container.container_perm")))
+	config.Config.SetOverlayLinkDir(fmt.Sprintf("%s/storage/overlay/l", config.Config.GetContainersPath()))
 }

@@ -14,7 +14,7 @@ import (
 
 func MountProc(new_root string) {
 	target := filepath.Join(new_root, "/proc")
-	helpers.ErrorHelperPanicWithMessage(syscall.Mount("proc", target, "proc", 0, ""), "MountProc()")
+	helpers.CheckError(syscall.Mount("proc", target, "proc", 0, ""), "MountProc()")
 }
 
 func UmountProc() error {

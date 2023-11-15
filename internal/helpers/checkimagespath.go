@@ -6,17 +6,13 @@ package helpers
 
 import (
 	"fmt"
-
-	"io/fs"
-
-	"github.com/spf13/viper"
+	"godman/internal/config"
 )
 
 func CheckImagesPath() {
 	fmt.Println("Init images paths..")
-	perm := fs.FileMode(viper.GetUint32("container.container_perm"))
-	containersPath := GetAbsPath(viper.GetString("container.container_path"))
-	MakeDirAllIfNotExists(fmt.Sprintf("%s/%s", containersPath, viper.GetString("container.temp_path")), perm)
-	MakeDirAllIfNotExists(fmt.Sprintf("%s/storage/overlay/l", containersPath), perm)
-	MakeDirAllIfNotExists(fmt.Sprintf("%s/storage/overlay-images", containersPath), perm)
+	perm := config.Config.GetPermissions()
+	MakeDirAllIfNotExists(config.Config.GetContainersTemp(), perm)
+	MakeDirAllIfNotExists(config.Config.GetOverlayLinkDir(), perm)
+	MakeDirAllIfNotExists(config.Config.GetOverlayImage(), perm)
 }

@@ -7,6 +7,7 @@ package main
 import (
 	"fmt"
 	// "godman/internal/config"
+
 	"godman/internal/helpers"
 
 	"github.com/google/go-containerregistry/pkg/crane"
@@ -28,7 +29,7 @@ func main() {
 	// addImageToDB("busybox", "latest", "a416a98b71e224a3")
 	// addImageToDB("busybox", "3.18", "a416a98b71e23ed8")
 	// addImageToDB("registry.home.local/busybox", "latest", "a416a98b71e224a3")
-	helpers.ListImages()
+	// containers.ListImages()
 	// id, err := removeImageFromDbByHash("a416a98b71e23ed8")
 	// id, err := getIdByName("busybox:3.18")
 	// id, err := getIdByName("registry.home.local/busybox")
@@ -37,10 +38,11 @@ func main() {
 	// fmt.Println(err)
 	// }
 	// fmt.Println(id)
-	helpers.DownloadImage("registry.home.local/busybox")
+	// containers.DownloadImage("registry.home.local/busybox")
 	// containers.DownloadImage("gcr.io/kubernetes-e2e-test-images/echoserver:2.2", cfg.Container.TempPath)
 	// getManifest("alpine")
 
+	fmt.Println(helpers.GenerateID(26))
 }
 
 func mkImage() {

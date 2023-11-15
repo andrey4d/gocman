@@ -43,5 +43,5 @@ func Run(args []string) {
 	}
 
 	fmt.Printf("Starter PID: %d\n", os.Getpid())
-	helpers.ErrorHelperPanicWithMessage(cmd.Run(), "Run() ")
+	helpers.CheckError(cmd.Run(), "Run() ")
 }

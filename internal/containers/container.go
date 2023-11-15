@@ -6,6 +6,7 @@ package containers
 
 import (
 	"fmt"
+	"godman/internal/config"
 	"godman/internal/helpers"
 	"io/fs"
 	"os"
@@ -24,41 +25,52 @@ type OvfsMountCfg struct {
 	SELebel     string
 }
 
-type ContainerAttr struct {
-	Command_name   string
-	Arguments      []string
-	Container_name string
-	OvfsRoot       *OvfsMountCfg
-}
+func Container(args []string) {
 
-func Container(cAtr ContainerAttr) {
-	fmt.Printf("change root to %s\n", helpers.GetAbsPath(cAtr.OvfsRoot.Target))
+	cId := helpers.CreateContainerID(16)
 
-	helpers.ErrorHelperPanicWithMessage(MountOvfs(cAtr.OvfsRoot), "mount overlay")
+	containerBaseDir := fmt.Sprintf("%s/storage/overlay/%s", helpers.GetAbsPath(config.Config.GetContainersPath()), cId)
 
-	MountProc(helpers.GetAbsPath(cAtr.OvfsRoot.Target))
+	var ovfsMountCfg = OvfsMountCfg{
+		Lowerdir:    []string{fmt.Sprintf("%s/l", containerBaseDir)}, // overlay/l/<ZLR4NWYDXWB5LCOBDH7WAGVYDI> --> storage/overlay/<id>/diff
+		Upperdir:    fmt.Sprintf("%s/diff", containerBaseDir),        // storage/overlay/<id>/diff
+		Workdir:     fmt.Sprintf("%s/work", containerBaseDir),        // storage/overlay/<id>/work
+		Target:      fmt.Sprintf("%s/merged", containerBaseDir),      // storage/overlay/<id>/merged
+		Permeations: config.Config.GetPermissions(),
+		SELebel:     "",
+	}
 
-	helpers.ErrorHelperPanicWithMessage(MountRoot(helpers.GetAbsPath(cAtr.OvfsRoot.Target)), "pivot root")
+	command_name := args[0]
+	arguments := args[1:]
+	container_name := cId
 
-	helpers.ErrorHelperPanicWithMessage(syscall.Chdir("/"), "change dir")
+	fmt.Printf("change root to %s\n", helpers.GetAbsPath(ovfsMountCfg.Target))
 
-	cmd := exec.Command(cAtr.Command_name, cAtr.Arguments...)
+	helpers.CheckError(MountOvfs(&ovfsMountCfg), "mount overlay")
+
+	MountProc(helpers.GetAbsPath(ovfsMountCfg.Target))
+
+	helpers.CheckError(MountRoot(helpers.GetAbsPath(ovfsMountCfg.Target)), "pivot root")
+
+	helpers.CheckError(syscall.Chdir("/"), "change dir")
+
+	cmd := exec.Command(command_name, arguments...)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	cmd.Env = []string{"PATH=/bin:/sbin:/usr/bin:/usr/sbin"}
 
-	setHostname(cAtr.Container_name)
+	setHostname(container_name)
 
 	fmt.Printf("Container PID: %d\n", os.Getpid())
-	helpers.ErrorHelperPanicWithMessage(cmd.Run(), "run container")
+	helpers.CheckError(cmd.Run(), "run container")
 
-	helpers.ErrorHelperPanicWithMessage(UmountProc(), "umount /proc")
+	helpers.CheckError(UmountProc(), "umount /proc")
 }
 
 func setHostname(hostname string) {
-	helpers.ErrorHelperPanicWithMessage(syscall.Sethostname([]byte(hostname)), "set container name")
+	helpers.CheckError(syscall.Sethostname([]byte(hostname)), "set container name")
 }
 
 func (o *OvfsMountCfg) MkUpper() error {
@@ -103,16 +115,16 @@ func (o *OvfsMountCfg) createDirectoryStructure() {
 	wg.Add(len(mounts) + 1)
 
 	go func() {
-		helpers.ErrorHelperPanicWithMessage(o.MkLower(), "make overlay lower")
+		helpers.CheckError(o.MkLower(), "make overlay lower")
 		// STUB
-		helpers.ErrorHelperPanicWithMessage(helpers.Untar("alpine.tar", o.Lowerdir[0]), "untar image")
+		helpers.CheckError(helpers.Untar("alpine.tar", o.Lowerdir[0]), "untar image")
 		// STUB
 		wg.Done()
 	}()
 
 	for _, point := range mounts {
 		go func(p string) {
-			helpers.ErrorHelperPanicWithMessage(helpers.MakeDirAllIfNotExists(p, o.Permeations), fmt.Sprintf("make overlay %s\n", p))
+			helpers.CheckError(helpers.MakeDirAllIfNotExists(p, o.Permeations), fmt.Sprintf("make overlay %s\n", p))
 			wg.Done()
 		}(point)
 	}

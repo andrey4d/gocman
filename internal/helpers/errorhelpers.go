@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func ErrorHelperPanicWithMessage(err error, msg string) {
+func CheckError(err error, msg string) {
 	if err != nil {
 		log.Println(msg)
 		log.Fatalf("ERROR: %v", err)

@@ -15,7 +15,7 @@ func GetAbsPath(path string) string {
 		return path
 	}
 	pwd, err := os.Getwd()
-	ErrorHelperPanicWithMessage(err, "get work dir")
+	CheckError(err, "get work dir")
 
 	return filepath.Join(pwd, path)
 }
@@ -23,13 +23,13 @@ func GetAbsPath(path string) string {
 func GetTempPath(tmpPath string) string {
 
 	path, err := os.MkdirTemp(tmpPath, "*")
-	ErrorHelperPanicWithMessage(err, "make temp dir")
+	CheckError(err, "make temp dir")
 	return path
 }
 
 func MakeTempPath(path string, id string) string {
 	tmp := fmt.Sprintf("%s/%s", GetAbsPath(path), id)
 	err := os.MkdirAll(tmp, 0755)
-	ErrorHelperPanicWithMessage(err, "can't make temp dir")
+	CheckError(err, "can't make temp dir")
 	return tmp
 }

@@ -5,50 +5,66 @@
 package config
 
 import (
-	"fmt"
 	"io/fs"
-	"os"
-
-	"gopkg.in/yaml.v3"
 )
+
+type ContainerConfig struct {
+	containersPath string
+	containersTemp string
+	imageDbPath    string
+	overlayLinkDir string
+	overlayImage   string
+	permissions    fs.FileMode
+}
 
 var (
-	Config struct {
-		ContainersPath string
-		ContainersTemp string
-		ImageDbPath    string
-		Permissions    fs.FileMode
-	}
+	Config ContainerConfig
 )
 
-type Container struct {
-	BasePath      string      `yaml:"base_path"`
-	TempPath      string      `yaml:"temp_path"`
-	ContainerPath string      `yaml:"container_path"`
-	ContainerPerm fs.FileMode `yaml:"container_perm"`
+func (c ContainerConfig) GetContainersPath() string {
+	return c.containersPath
 }
 
-type ConfigOld struct {
-	Container Container `yaml:"container"`
+func (c ContainerConfig) GetContainersTemp() string {
+	return c.containersTemp
 }
 
-func InitConfig(configPath string) *ConfigOld {
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		fmt.Printf("Config file %s doesn't exist.", configPath)
+func (c ContainerConfig) GetImageDbPath() string {
+	return c.imageDbPath
+}
 
-	}
+func (c ContainerConfig) GetOverlayLinkDir() string {
+	return c.overlayLinkDir
+}
 
-	file, err := os.Open(configPath)
-	if err != nil {
-		fmt.Printf("can't read config.")
-	}
+func (c ContainerConfig) GetOverlayImage() string {
+	return c.overlayImage
+}
 
-	defer file.Close()
+func (c ContainerConfig) GetPermissions() fs.FileMode {
+	return c.permissions
+}
 
-	decoder := yaml.NewDecoder(file)
-	var cfg ConfigOld
+func (c *ContainerConfig) SetContainersPath(path string) {
+	c.containersPath = path
+}
 
-	decoder.Decode(&cfg)
-	fmt.Printf("%v\n", cfg.Container.BasePath)
-	return &cfg
+func (c *ContainerConfig) SetContainersTemp(path string) {
+	c.containersTemp = path
+}
+
+func (c *ContainerConfig) SetImageDbPath(path string) {
+	c.imageDbPath = path
+}
+
+func (c *ContainerConfig) SetOverlayLinkDir(path string) {
+	c.overlayLinkDir = path
+}
+
+func (c *ContainerConfig) SetOverlayImage(path string) {
+	c.overlayImage = path
+}
+
+func (c *ContainerConfig) SetPermissions(perm fs.FileMode) {
+	c.permissions = perm
 }

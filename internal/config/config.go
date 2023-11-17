@@ -14,6 +14,7 @@ type ContainerConfig struct {
 	imageDbPath    string
 	overlayLinkDir string
 	overlayImage   string
+	overlayDir     string
 	permissions    fs.FileMode
 }
 
@@ -41,6 +42,10 @@ func (c ContainerConfig) GetOverlayImage() string {
 	return c.overlayImage
 }
 
+func (c ContainerConfig) GetOverlayDir() string {
+	return c.overlayDir
+}
+
 func (c ContainerConfig) GetPermissions() fs.FileMode {
 	return c.permissions
 }
@@ -63,6 +68,10 @@ func (c *ContainerConfig) SetOverlayLinkDir(path string) {
 
 func (c *ContainerConfig) SetOverlayImage(path string) {
 	c.overlayImage = path
+}
+
+func (c *ContainerConfig) SetOverlayDir(path string) {
+	c.overlayDir = path
 }
 
 func (c *ContainerConfig) SetPermissions(perm fs.FileMode) {

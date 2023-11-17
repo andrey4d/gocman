@@ -6,9 +6,10 @@ package main
 
 import (
 	"fmt"
+
 	// "godman/internal/config"
 
-	"godman/internal/helpers"
+	"godman/internal/containers"
 
 	"github.com/google/go-containerregistry/pkg/crane"
 )
@@ -42,7 +43,17 @@ func main() {
 	// containers.DownloadImage("gcr.io/kubernetes-e2e-test-images/echoserver:2.2", cfg.Container.TempPath)
 	// getManifest("alpine")
 
-	fmt.Println(helpers.GenerateID(26))
+	getLowerLayers("4081d9a831083d9e57c49a95632feaf0103bd4db2c9fa1e01b48b7b1136a946d")
+}
+
+func getLowerLayers(id string) []string {
+	destConfig := fmt.Sprintf("%s/%s/manifest.json", "/home/andrey/git_project/golang/godman/containers/storage/overlay-images", id)
+
+	manifest := containers.GetManifest(destConfig)
+	for _, layer := range manifest[0].Layers {
+		fmt.Println(layer)
+	}
+	return []string{""}
 }
 
 func mkImage() {

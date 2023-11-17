@@ -69,4 +69,5 @@ func initContainerConfig() {
 	config.Config.SetImageDbPath(fmt.Sprintf("%s/images.json", config.Config.GetOverlayImage()))
 	config.Config.SetPermissions(fs.FileMode(viper.GetUint32("container.container_perm")))
 	config.Config.SetOverlayLinkDir(fmt.Sprintf("%s/storage/overlay/l", config.Config.GetContainersPath()))
+	config.Config.SetOverlayDir(fmt.Sprintf("%s/storage/overlay", config.Config.GetContainersPath()))
 }

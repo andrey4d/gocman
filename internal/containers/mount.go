@@ -30,8 +30,10 @@ func (o *OvfsMountCfg) getOverlayOpt(imageId string) string {
 	for _, layer := range laers {
 		o.Lowerdir = append(o.Lowerdir, fmt.Sprintf("%s/%s/diff", config.Config.GetOverlayDir(), layer))
 	}
-	opts := fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s", strings.Join(o.Lowerdir, ":"), helpers.GetAbsPath(o.Upperdir), helpers.GetAbsPath(o.Workdir))
-	// fmt.Println(opts)
+	opts := fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s",
+		strings.Join(o.Lowerdir, ":"),
+		helpers.GetAbsPath(o.Upperdir),
+		helpers.GetAbsPath(o.Workdir))
 	return opts
 }
 
@@ -63,7 +65,6 @@ func UmountProc() error {
 func MountRoot(new_root string) error {
 
 	old_root := filepath.Join(new_root, "/.pivot_root")
-	fmt.Println(new_root)
 	if err := syscall.Mount(new_root, new_root, "", syscall.MS_BIND|syscall.MS_REC, ""); err != nil {
 		helpers.ErrorHelperLog("Bind newroot")
 		return err

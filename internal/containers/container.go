@@ -19,8 +19,11 @@ func Container(args []string) {
 	cId := helpers.CreateContainerID(16)
 
 	image_name := args[0]
-	imageId, err := GetIdByName(image_name)
-	helpers.CheckError(err, "container() get image id")
+	imageId := DownloadImage(image_name)
+
+	// imageId, err := GetIdByName(image_name)
+
+	// helpers.CheckError(err, "container() get image id")
 
 	command_name := args[1]
 	arguments := args[2:]

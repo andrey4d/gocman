@@ -3,8 +3,6 @@ tmp*
 */**.tar
 CONTAINER_ROOT
 *.tar
-fakeroot*
-ovfs
 .vscode
-containers*
+containers
 *.txt

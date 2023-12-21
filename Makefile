@@ -33,3 +33,8 @@ go-clean:
 	@echo "  >  Cleaning build cache"
 	rm -rf ./bin 
 	go clean
+
+## cmount: build binary `go build cmount` internally.
+cmount: 
+	@echo "  >  Building binary..."
+	go build -o $(BIN)/cmount $(BASE)/cmd/cmount/main.go

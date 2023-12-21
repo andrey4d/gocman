@@ -37,7 +37,7 @@ func (o *OvfsMountCfg) getOverlayOpt(imageId string) string {
 	return opts
 }
 
-func (o *OvfsMountCfg) createDirectoryStructure() {
+func (o *OvfsMountCfg) CreateDirectoryStructure() {
 	mounts := []string{
 		o.Workdir,
 		o.Upperdir,

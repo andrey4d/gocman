@@ -1,25 +1,23 @@
 /*
- *   Copyright (c) 2023 Andrey andrey4d.dev@gmail.com
+ *   Copyright (c) 2024 Andrey andrey4d.dev@gmail.com
  *   All rights reserved.
  */
-package main
+package imagemount
 
 import (
-	log "github.com/sirupsen/logrus"
-	"os"
-
-	"godman/cmd/cmount/cmountconfig"
 	"godman/internal/config"
 	"godman/internal/containers"
 	"godman/internal/helpers"
+
+	"github.com/sirupsen/logrus"
 )
 
-func main() {
-	image_name := os.Args[1]
-	mount_point := os.Args[2]
+func ImageMountToDir(args []string) {
 
-	cmountconfig.InitContainerConfig("containers")
-	config.CheckImagesPath()
+	image_name := args[0]
+	mount_point := args[1]
+
+	logrus.Infof("mount image %s to %s\n", image_name, mount_point)
 
 	imageId := containers.DownloadImage(image_name)
 
@@ -33,5 +31,5 @@ func main() {
 	}
 	overlayMountCfg.CreateDirectoryStructure()
 	helpers.CheckError(containers.MountOvfs(imageId, &overlayMountCfg), "containe() mount overlay")
-	log.Printf("mounted to %s\n", helpers.GetAbsPath(overlayMountCfg.Target))
+	logrus.Printf("mounted to %s\n", helpers.GetAbsPath(overlayMountCfg.Target))
 }

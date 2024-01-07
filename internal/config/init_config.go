@@ -29,3 +29,8 @@ func CheckImagesPath() {
 	helpers.MakeDirAllIfNotExists(Config.GetOverlayLinkDir(), perm)
 	helpers.MakeDirAllIfNotExists(Config.GetOverlayImage(), perm)
 }
+
+func InitContainersHome(mount_path string) {
+	InitContainerConfig(mount_path)
+	CheckImagesPath()
+}

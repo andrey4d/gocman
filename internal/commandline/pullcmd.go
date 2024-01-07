@@ -5,10 +5,12 @@
 package commandline
 
 import (
+	"godman/internal/config"
 	"godman/internal/containers"
 	"godman/internal/helpers"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // pullCmd represents the images command
@@ -28,5 +30,6 @@ func pull(_ *cobra.Command, args []string) {
 
 	}
 
+	config.InitContainersHome(viper.GetString(flag_containers.Name))
 	containers.DownloadImage(args[0])
 }

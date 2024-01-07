@@ -5,9 +5,11 @@
 package commandline
 
 import (
+	"godman/internal/config"
 	"godman/internal/containers"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // imagesCmd represents the images command
@@ -22,6 +24,6 @@ func init() {
 }
 
 func images(_ *cobra.Command, _ []string) {
-
-  containers .ListImages()
+	config.InitContainersHome(viper.GetString(flag_containers.Name))
+	containers.ListImages()
 }

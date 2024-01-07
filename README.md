@@ -12,11 +12,9 @@ make build
 
 ```example
 go run cmd/main.go run alpine  /bin/sh                     
-Using config file: /home/andrey/git_project/golang/godman/config/config.yaml
 Init images paths..
 Hello godman!
 Starter PID: 108149
-Using config file: /home/andrey/git_project/golang/godman/config/config.yaml
 Init images paths..
 INFO[0000] Downloading metadata for alpine:latest, please wait... 
 INFO[0002] Id: 8ca4688f4f356596b5ae539337c9941abc78eda10021d35cbc52659c74d9b443 
@@ -42,11 +40,24 @@ BUG_REPORT_URL="https://gitlab.alpinelinux.org/alpine/aports/-/issues"
 ```
 ```
 go run cmd/main.go images                                         
-Using config file: /home/andrey/git_project/golang/godman/config/config.yaml
 Init images paths..
 NAME                                          TA      IMAGE ID                                                          
 registry.home.local/busybox-kaniko            latest  14315177050d00d01658077ac50dfd2f9c28cd5a062d3d5f8ccca8b66ea94f19  
 gcr.io/kubernetes-e2e-test-images/echoserver  2.2     4081d9a831083d9e57c49a95632feaf0103bd4db2c9fa1e01b48b7b1136a946d  
 alpine                                        latest  8ca4688f4f356596b5ae539337c9941abc78eda10021d35cbc52659c74d9b443  
 registry.home.local/busybox                   latest  a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824  
+```
+### Mount container image 
+```shell
+sudo ./godman mount  registry.home.local/busybox busybox         
+INFO[0000] Init images paths..                          
+INFO[0000] mount image registry.home.local/busybox to busybox 
+INFO[0000] Downloading metadata for registry.home.local/busybox:latest, please wait... 
+INFO[0000] Id: a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824 
+INFO[0000] Checking if image exists under another name... 
+INFO[0000] /home/andrey/git_project/golang/godman/containers/tmp/a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824/a416a98b71e224a31ee99cff8e16063554498227d2b696152a9c3e0aa65e5824.tar 
+INFO[0000] Uncompressing layer to: /home/andrey/git_project/golang/godman/containers/storage/overlay/702a604e206f65d8347704b95bd9efd7ea6996ffdca588ebd0d8e1ad24c76c22/diff  
+INFO[0000] Save Layer 702a604e206f65d8347704b95bd9efd7ea6996ffdca588ebd0d8e1ad24c76c22.  
+mount overlay fs root ...
+INFO[0000] mounted to /home/andrey/git_project/golang/godman/containers/busybox 
 ```

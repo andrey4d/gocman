@@ -7,11 +7,12 @@ package containers
 import (
 	"encoding/json"
 	"fmt"
-	"godman/internal/config"
-	"godman/internal/helpers"
+
 	"os"
 	"strings"
 
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/helpers"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/fatih/color"
@@ -19,6 +20,8 @@ import (
 	"github.com/rodaine/table"
 	"golang.org/x/exp/maps"
 )
+
+const manifest = "manifest.json"
 
 type ImageRow map[string]string  // imageName: tag
 type ImageDB map[string]ImageRow // {id : {"imageName":"tag"}}
@@ -184,13 +187,25 @@ func GetIdByName(name string) (string, error) {
 }
 
 func GetLowerLayers(id string) []string {
-	destConfig := fmt.Sprintf("%s/%s/manifest.json", config.Config.GetOverlayImage(), id)
+	destConfig := config.Config.GetOverlayImage() + "/" + id + "/" + manifest
 	manifest := GetManifest(destConfig)
 	layers := []string{}
 	for _, layer := range manifest[0].Layers {
 		layers = append(layers, strings.Split(layer, ".")[0])
 	}
 	return layers
+}
+
+func GetLowerLayersLink(id string) ([]string, error) {
+	layers := []string{}
+	for _, layer := range GetLowerLayers(id) {
+		bLink, err := os.ReadFile(config.Config.GetOverlayDir() + "/" + layer + "/link")
+		if err != nil {
+			return nil, err
+		}
+		layers = append(layers, string(bLink))
+	}
+	return layers, nil
 }
 
 func ListImages() {

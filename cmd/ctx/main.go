@@ -6,8 +6,8 @@
 package main
 
 import (
-	"godman/cmd/ctx/context"
-	"godman/cmd/ctx/somepkg"
+	"github.com/andrey4d/gocman/cmd/ctx/context"
+	"github.com/andrey4d/gocman/cmd/ctx/somepkg"
 	"log"
 )
 

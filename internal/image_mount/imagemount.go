@@ -5,9 +5,9 @@
 package imagemount
 
 import (
-	"godman/internal/config"
-	"godman/internal/containers"
-	"godman/internal/helpers"
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/containers"
+	"github.com/andrey4d/gocman/internal/helpers"
 
 	"github.com/sirupsen/logrus"
 )

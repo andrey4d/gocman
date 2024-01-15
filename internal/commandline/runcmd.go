@@ -5,8 +5,8 @@
 package commandline
 
 import (
-	"godman/internal/helpers"
-	"godman/internal/starter"
+	"github.com/andrey4d/gocman/internal/helpers"
+	"github.com/andrey4d/gocman/internal/starter"
 
 	"github.com/spf13/cobra"
 )

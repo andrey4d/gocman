@@ -9,7 +9,7 @@ import (
 
 	// "godman/internal/config"
 
-	"godman/internal/containers"
+	"github.com/andrey4d/gocman/internal/containers"
 
 	"github.com/google/go-containerregistry/pkg/crane"
 )

@@ -5,7 +5,7 @@
 package somepkg
 
 import (
-	"godman/cmd/ctx/context"
+	"github.com/andrey4d/gocman/cmd/ctx/context"
 	"log"
 )
 

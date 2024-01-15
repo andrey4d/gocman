@@ -5,9 +5,9 @@
 package commandline
 
 import (
-	"godman/internal/config"
-	"godman/internal/helpers"
-	imagemount "godman/internal/image_mount"
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/helpers"
+	imagemount "github.com/andrey4d/gocman/internal/image_mount"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

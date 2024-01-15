@@ -6,12 +6,14 @@ package containers
 
 import (
 	"fmt"
-	"godman/internal/config"
-	"godman/internal/helpers"
+	"github.com/andrey4d/gocman/internal/config"
+
 	"os"
 	"os/exec"
 
 	"syscall"
+
+	"github.com/andrey4d/gocman/internal/helpers"
 )
 
 func Container(args []string) {

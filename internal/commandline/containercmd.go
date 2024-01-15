@@ -8,8 +8,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"godman/internal/config"
-	"godman/internal/containers"
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/containers"
 )
 
 var containerCmd = &cobra.Command{

@@ -6,13 +6,15 @@ package containers
 
 import (
 	"fmt"
-	"godman/internal/config"
-	"godman/internal/helpers"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/helpers"
+	"github.com/sirupsen/logrus"
 )
 
 type OvfsMountCfg struct {
@@ -26,10 +28,18 @@ type OvfsMountCfg struct {
 
 func (o *OvfsMountCfg) getOverlayOpt(imageId string) string {
 	o.Lowerdir = []string{}
-	laers := GetLowerLayers(imageId)
-	for _, layer := range laers {
-		o.Lowerdir = append(o.Lowerdir, fmt.Sprintf("%s/%s/diff", config.Config.GetOverlayDir(), layer))
+	laers, err := GetLowerLayersLink(imageId)
+	if err != nil {
+		logrus.Fatal(err)
 	}
+
+	for _, layer := range laers {
+		o.Lowerdir = append(o.Lowerdir, config.Config.GetOverlayLinkDir()+"/"+layer)
+
+	}
+
+	logrus.Info(o.Lowerdir)
+
 	opts := fmt.Sprintf("lowerdir=%s,upperdir=%s,workdir=%s",
 		strings.Join(o.Lowerdir, ":"),
 		helpers.GetAbsPath(o.Upperdir),

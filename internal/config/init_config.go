@@ -5,9 +5,9 @@
 package config
 
 import (
-	"godman/internal/helpers"
 	"io/fs"
 
+	"github.com/andrey4d/gocman/internal/helpers"
 	"github.com/sirupsen/logrus"
 )
 

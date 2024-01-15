@@ -5,7 +5,7 @@
 package main
 
 import (
-	"godman/internal/commandline"
+	"github.com/andrey4d/gocman/internal/commandline"
 )
 
 func main() {

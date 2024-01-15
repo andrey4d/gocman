@@ -1,4 +1,4 @@
-module godman
+module github.com/andrey4d/gocman
 
 go 1.21.3
 

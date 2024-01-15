@@ -6,7 +6,7 @@ package main
 
 import (
 	"fmt"
-	"godman/cmd/test/config"
+	"github.com/andrey4d/gocman/cmd/test/config"
 	"path/filepath"
 )
 

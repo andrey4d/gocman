@@ -6,10 +6,12 @@ package starter
 
 import (
 	"fmt"
-	"godman/internal/helpers"
+
 	"os"
 	"os/exec"
 	"syscall"
+
+	"github.com/andrey4d/gocman/internal/helpers"
 )
 
 func Run(args []string) {

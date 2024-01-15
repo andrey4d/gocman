@@ -8,10 +8,10 @@ import (
 	log "github.com/sirupsen/logrus"
 	"os"
 
-	"godman/cmd/cmount/cmountconfig"
-	"godman/internal/config"
-	"godman/internal/containers"
-	"godman/internal/helpers"
+	"github.com/andrey4d/gocman/cmd/cmount/cmountconfig"
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/containers"
+	"github.com/andrey4d/gocman/internal/helpers"
 )
 
 func main() {

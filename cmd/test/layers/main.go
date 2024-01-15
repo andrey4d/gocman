@@ -6,18 +6,33 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/andrey4d/gocman/cmd/test/layers/cmountconfig"
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/containers"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/sirupsen/logrus"
 )
 
 func main() {
+	cmountconfig.InitContainerConfig("containers")
+	config.CheckImagesPath()
 
-	id := "66ab603055b6575ebd0d9caa25f073464f2b57dfc7deba3f3f30691bd135bb94"
-	getLinkToLayers(id)
+	id := "bc4ac1228b3cc9e7a67974810d92e6f752c2e8ef9a11efd4007e608579591693"
+	// getLinkToLayers(id)
+	layerLinks, err := (containers.GetLowerLayersLink(id))
+	if err != nil {
+		logrus.Fatal(err)
+	}
+	for _, ll := range layerLinks {
+		llf := config.Config.GetOverlayLinkDir() + "/" + ll
+		fmt.Println(llf)
+	}
 
 }
 

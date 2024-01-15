@@ -5,9 +5,9 @@
 package commandline
 
 import (
-	"godman/internal/config"
-	"godman/internal/containers"
-	"godman/internal/helpers"
+	"github.com/andrey4d/gocman/internal/config"
+	"github.com/andrey4d/gocman/internal/containers"
+	"github.com/andrey4d/gocman/internal/helpers"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

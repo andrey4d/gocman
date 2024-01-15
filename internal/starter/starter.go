@@ -29,7 +29,7 @@ func Run(args []string) {
 	cmd.SysProcAttr.UidMappings = []syscall.SysProcIDMap{
 		{
 			ContainerID: 0,
-			HostID:      1000,
+			HostID:      os.Getuid(),
 			Size:        1,
 		},
 	}
@@ -37,7 +37,7 @@ func Run(args []string) {
 	cmd.SysProcAttr.GidMappings = []syscall.SysProcIDMap{
 		{
 			ContainerID: 0,
-			HostID:      1000,
+			HostID:      os.Getgid(),
 			Size:        1,
 		},
 	}

@@ -42,11 +42,11 @@ func Container(args []string) {
 
 	helpers.CheckError(MountOvfs(imageId, &overlayMountCfg), "containe() mount overlay")
 
-	// MountProc(overlayMountCfg.Target)
+	MountProc(overlayMountCfg.Target)
 
-	// helpers.CheckError(MountRoot(overlayMountCfg.Target), "container() pivot root")
+	helpers.CheckError(MountRoot(overlayMountCfg.Target), "container() pivot root")
 
-	// helpers.CheckError(syscall.Chdir("/"), "change dir")
+	helpers.CheckError(syscall.Chdir("/"), "change dir")
 
 	cmd := exec.Command(command_name, arguments...)
 	cmd.Stdin = os.Stdin

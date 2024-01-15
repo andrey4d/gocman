@@ -3,6 +3,7 @@ module godman
 go 1.21.3
 
 require (
+	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/fatih/color v1.16.0
 	github.com/google/go-containerregistry v0.16.1
 	github.com/rodaine/table v1.1.0
